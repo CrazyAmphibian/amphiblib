@@ -78,6 +78,24 @@ return false
 end
 string.has=has --allow :has to be used with any string
 
+isin = function(t,s)-- check if t is in s. this is the same as has() but in reverse order. code wise it is th same.
+if type(s)=="number" then s=tostring(s) end --convert numbers to strings
+if type(t)=="number" then t=tostring(t) end 
+	if type(s)=="string" then --if source is string value
+		if type(t)=="string" then --and the target is string, do a find operation
+			if s:find(t) then return true end
+		end
+	elseif type(s)=="table" then --if it's a table
+		for _,v in pairs(s) do --iterate through and find matches
+			if v==t then return true end
+		end
+	end
+return false
+end
+string.isin=isin --of course allow :isin to be called, which is more useful for strings anyways.
+
+
+
 string.cap = function(str,forcelower) --capitalize the first letter of words. forcelower makes it so non uppered are lowered
 if type(str)~="string" then return nil end
 local out=""
