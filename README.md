@@ -89,6 +89,36 @@ this has also been added as string.has(), so you can use a colon to call it with
  = >false
 
  
+ isin:
+ the isin function operates exactly like the has function, but the inputs are flipped. this can be useful for string checking so that one can use a colon for cleaner looking/more readable code
+ 
+ example:
+
+ = a="foobar"
+
+ = b="foo"
+
+ = print(a:isin(b))
+
+ = > false
+
+ = print(b:isin(a))
+
+ = >true
+
+ = a={"foo","bar"}
+
+ = b="foo"  
+
+ = print(b:isin(a))
+
+ = >true
+
+ = b="hello"  
+
+ = print(b:isin(a))
+
+ = >false
 
  
 
