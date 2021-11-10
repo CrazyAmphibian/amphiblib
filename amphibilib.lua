@@ -169,3 +169,12 @@ local n=0
 	if n==rng then return v end
 	end
 end
+
+
+cif = function(c,t,f) --adds in "compact if". more compact if statment, really. maybe more readable, who knows
+	if c then
+		return t
+	else
+		return f
+	end
+end
