@@ -270,8 +270,14 @@ an if statment, but more compact. takes 3 arguments, the condition, true output 
 example:
 
   = a="foo"
+  
   = b="bar"
+  
   = print(cif(1==1,a,b))
+  
   = > foo
+  
   = print(cif(1==2,a,b))
+  
   = > bar
+  
