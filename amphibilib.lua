@@ -6,12 +6,15 @@ included functions:
 
 table.tosring | convert a table to a usable string. can be set to keep all numeric keys.
 has, string.has | check to see if the first term contains the second. returns a bool
+isin, string.isin | check to see if the first item appears in the second. returns a bool
 string.cap | makes letters capital. can be set to force proper casing
 string.plural | makes a word plural using english rules
 string.letters | returns a table with all letters in a string. returns empty if not string.
 string.words | returns a table with all words. space is the default seperator
 pickrandom | picks a random item in a table.
-
+cif | a compact if statment that returns the second or third paramater depending on the first.
+getfiles | returns a table of all files within a directory. works in linux and windows
+prompt | gets a user input for the terminal only. basicly the same as python's input() function. (except lua is better.)
 ]]
 
 
@@ -178,3 +181,29 @@ cif = function(c,t,f) --adds in "compact if". more compact if statment, really. 
 		return f
 	end
 end
+
+prompt = function(s,sep) --more compact way of getting user input for the command line
+if not sep then sep="" end
+io.write(s..sep)
+return io.read()
+end
+
+getfiles=function(dir) --return all files in a directory
+	local out={}
+	local a=io.popen("ls "..dir:gsub("\\","/") ):read("*all")
+	if a:len()==0 then --if windows
+		a=io.popen("dir "..dir:gsub("/","\\").." /B" ):read("*all")	
+	end
+	
+	local n=1
+	for i=1,a:len() do
+		if not out[n] then out[n] = "" end
+			if a:sub(i,i) ~="\n" then
+				out[n]=out[n]..a:sub(i,i)
+			else
+				n=n+1
+			end	
+	end
+	return out
+end
+
