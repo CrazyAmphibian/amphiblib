@@ -1,32 +1,3 @@
-# amphiblib
-
-a collection of functions that may or may not be useful depending on what you need
-
-
-
-functions included;
-
-
-
-table.tostring:
-
-converts a table into a string, it is suitable for dofile() or dostring()
-
-supports nested tables, string values, number values, but NOT function values. function values are instead converted into their memory representation due to a tostring operation
-
-there is also an optional argument "keepkeys" (default false), which will preserve number keys. string keys are always preserved.
-
-
-
-  example:
-
-  = a={1,2,3}
-
-  = print(table.tostring(a))
-
-  = > {1,2,3}
-
-  = print(table.tostring(a,true))--[[
 ## Amphibilib
 ## the amphibian library
 
