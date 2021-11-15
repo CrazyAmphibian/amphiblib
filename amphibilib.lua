@@ -190,9 +190,9 @@ end
 
 getfiles=function(dir) --return all files in a directory
 	local out={}
-	local a=io.popen("ls "..dir:gsub("\\","/") ):read("*all")
+	local a=io.popen("ls \""..dir:gsub("\\","/").."\"" ):read("*all")
 	if a:len()==0 then --if windows
-		a=io.popen("dir "..dir:gsub("/","\\").." /B" ):read("*all")	
+		a=io.popen("dir \""..dir:gsub("/","\\").."\" /B" ):read("*all")	
 	end
 	
 	local n=1
