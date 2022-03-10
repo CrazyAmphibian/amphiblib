@@ -17,50 +17,41 @@ getfiles | returns a table of all files within a directory. works in linux and w
 prompt | gets a user input for the terminal only. basicly the same as python's input() function. (except lua is better.)
 ]]
 
-
 table.tostring = function(tab,keepkeys) --converts a table to a string. keepkeys will keep numeric type keys. it will always keep string keys
 if type(tab)~="table" then return tab end --only execute if its a table
 local textout=""
-if not keepkeys then keepkeys=false end
-local currentlen = 0
-textout=textout.."{"
-local targetlen=0
-for _ in pairs(tab) do targetlen=targetlen+1 end
-	for i,v in pairs(tab) do	
+local n=0
+
+textout="{"..textout
+	for i,v in pairs(tab) do
+	n=n+1
+		--first, key writting
+		if type(i)=="number" and keepkeys then
+				textout=textout.."["..i.."]="
+		elseif type(i)=="number" then		
+		elseif type(i)=="string" then
+			textout=textout.."[\"".. i :gsub("\\","\\\\"):gsub("\"","\\\""):gsub("\n","\\n"):gsub("\r","\\r") .."\"]="
+		else
+			textout=textout.."["..tostring(i).."]"
+		end
+		
+		--now the values
 		if type(v)=="table" then
-		textout=textout..table.tostring(v)		
-		elseif type(v)=="function" then --in the event of a function, just convert it lazily
-			if keepkeys or type(i)~="number" then
-				if type(i)=="number" then
-					textout=textout.."["..i.."]="	
-				else
-					textout=textout.."[\""..i.."\"]="	
-				end	
-			end
-			textout=textout.."\""..tostring(v).."\""
+			textout=textout..table.tostring(v,keepkeys)
+		elseif type(v)=="number" then
+			textout=textout..v
 		elseif type(v)=="string" then
-			if keepkeys or type(i)~="number" then
-				if type(i)=="number" then
-					textout=textout.."["..i.."]="	
-				else
-					textout=textout.."[\""..i.."\"]="	
-				end	
-			end
-			textout=textout.."\""..v.."\""
-		else	
-			if keepkeys or type(i)~="number" then
-				if type(i)=="number" then
-					textout=textout.."["..i.."]="	
-				else
-					textout=textout.."[\""..i.."\"]="	
-				end
-			end
-			textout=textout..v		
-		end			
-		currentlen=currentlen+1
-		if currentlen<targetlen then textout=textout.."," end		
+			textout=textout.."\"".. v :gsub("\\","\\\\"):gsub("\"","\\\""):gsub("\n","\\n"):gsub("\r","\\r") .."\""
+			if textout:find("\v") then print(v) end
+		else
+			textout=textout.."\""..tostring(v).."\""
+			print("aa")
+		end	
+	
+	if n~=#tab then textout=textout.."," end
 	end
 textout=textout.."}"
+
 return textout
 end
 
@@ -145,20 +136,30 @@ local out={}
 return out	
 end
 
-string.words = function(s,seperator) --extract words into a table. can set a custom separator default " "
+string.words = function(s,seperator,keepsep) --extract words into a table. can set a custom separator default " "
 if type(s) ~= "string" then return {} end
-local sep=seperator
-if not seperator then sep=" " end
+if not seperator then seperator={" "} end
+if type(seperator) ~= "table" then seperator={seperator} end
 local out={}
-local n=1
+local buf=""
 	for i=1,#s do
-		if s:sub(i,i) ~= sep then
-			if not out[n] then out[n]="" end
-			out[n]=out[n]..s:sub(i,i)
-		else
-		n=n+1
+	local issep	
+		for _,sep in pairs(seperator) do
+			if sep==s:sub(i,i) then issep = true end
 		end
+	
+		if issep then
+		if buf~="" then table.insert(out,buf) end
+			if keepsep then
+			table.insert(out,s:sub(i,i))
+			end	
+		buf=""
+		else
+		buf=buf..s:sub(i,i)
+		end	
 	end
+if buf~="" then table.insert(out,buf) end
+
 return out	
 end
 
