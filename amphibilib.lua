@@ -17,27 +17,40 @@ getfiles | returns a table of all files within a directory. works in linux and w
 prompt | gets a user input for the terminal only. basicly the same as python's input() function. (except lua is better.)
 ]]
 
-table.tostring = function(tab,keepkeys) --converts a table to a string. keepkeys will keep numeric type keys. it will always keep string keys
-if type(tab)~="table" then return tab end --only execute if its a table
-local textout=""
-local n=0
+table.tostring = function(tab,keepkeys, humanreadable , rlevel) --converts a table to a string. keepkeys will keep numeric type keys. it will always keep string keys
+	if type(tab)~="table" then return tab end --only execute if its a table
+	local textout=""
+	local n=0
+	rlevel=rlevel or 0 --recursion level.
 
-textout="{"..textout
+	if humanreadable then
+	for t=1,rlevel do textout=textout.."\t" end --tab for each level in.
+	end
+
+	--textout="{"..textout
+	textout=textout.."{"
+		
 	for i,v in pairs(tab) do
-	n=n+1
+		n=n+1
+
+		if humanreadable and n~=1  then
+			for t=1,rlevel do textout=textout.."\t" end --tab for each level in.
+		end
+		
 		--first, key writting
 		if type(i)=="number" and keepkeys then
-				textout=textout.."["..i.."]="
+			textout=textout.."["..i.."]="
 		elseif type(i)=="number" then		
 		elseif type(i)=="string" then
 			textout=textout.."[\"".. i :gsub("\\","\\\\"):gsub("\"","\\\""):gsub("\n","\\n"):gsub("\r","\\r") .."\"]="
 		else
 			textout=textout.."["..tostring(i).."]"
 		end
-		
+
 		--now the values
 		if type(v)=="table" then
-			textout=textout..table.tostring(v,keepkeys)
+			textout=textout..table.tostring(v,keepkeys,humanreadable,rlevel+1)
+			if humanreadable then textout=textout.."\n" end
 		elseif type(v)=="number" then
 			textout=textout..v
 		elseif type(v)=="string" then
@@ -47,13 +60,15 @@ textout="{"..textout
 			textout=textout.."\""..tostring(v).."\""
 			print("aa")
 		end	
-	
-	if n~=#tab then textout=textout.."," end
-	end
-textout=textout.."}"
 
-return textout
+		if n~=#tab then textout=textout.."," end
+		if humanreadable and n<#tab then textout=textout.."\n" end
+	end
+	textout=textout.."}"
+
+	return textout
 end
+
 
 
 has = function(s,t) --check if s has t in it
