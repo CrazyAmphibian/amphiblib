@@ -15,6 +15,13 @@ pickrandom | picks a random item in a table.
 cif | a compact if statment that returns the second or third paramater depending on the first.
 getfiles | returns a table of all files within a directory. works in linux and windows
 prompt | gets a user input for the terminal only. basicly the same as python's input() function. (except lua is better.)
+table.copy | returns a copy of the supplied table without linking them in memory. does not support metamethods, i think.
+math.normalrandom | returns random numbers along a normal distribution. can be supplied a mean and standard deviation, default 0 and 1. third argument samples (default 10) controls range and accuracy to a real normal distribution at the cost of speed.
+math.sum | returns the sum of a table
+math.mean | returns the mean of a table
+math.stdev | returns the standard deviation of a table
+table.next | returns the next item in a tabe. duplicate entries will mess it up.
+table.prev | reterns the previous item in a table. duplicate entries will mess it up.
 ]]
 
 table.tostring = function(tab,keepkeys, humanreadable , rlevel) --converts a table to a string. keepkeys will keep numeric type keys. it will always keep string keys
@@ -183,9 +190,9 @@ pickrandom = function(s) --pick a random item in the table
 if type(s) ~= "table" then return s end
 local rng = math.random(1,#s)
 local n=0
-	for _,v in pairs(s) do
+	for i,v in pairs(s) do
 	n=n+1
-	if n==rng then return v end
+	if n==rng then return v,i end
 	end
 end
 
@@ -221,5 +228,94 @@ getfiles=function(dir) --return all files in a directory
 			end	
 	end
 	return out
+end
+
+
+function table.copy(t) --because lua tables are funny. here's a cheap workaround
+	if type(t)~="table" then return t end
+	local out={}
+	for i,v in pairs(t) do
+		if type(v)=="table" then
+			out[i]=table.copy(v)
+		else
+			out[i]=v
+		end
+	end
+	return out
+end
+
+function math.normalrandom(mean,deviation,samples)
+	mean=mean or 0
+	deviation=deviation or 1
+	samples=samples or 10
+
+	local sum=0
+	for i=1,samples do
+		sum=sum+math.random()
+	end
+	sum=sum/samples --get average
+
+	sum=sum-.5 --account for center of .5
+	sum=sum*deviation*2 -- .5 default
+	sum=sum*math.sqrt(samples)/.577614 --the magic number that makes it actually base deviations
+	sum=sum+mean
+
+	return sum
+end
+
+function math.sum(t)
+	local sum=0
+	for _,v in pairs(t) do
+		sum=sum+v
+	end
+	return sum
+end
+
+function math.mean(t)
+	sum,n=0,0
+	for _,v in pairs(t) do
+		sum=sum+v n=n+1
+	end
+	return sum/n
+end
+
+function math.stdev(t)
+	local m=math.mean(t)
+	sum,n=0,0
+	for _,v in pairs(t) do
+		sum=sum+((v-m)^2)
+		n=n+1
+	end
+	sum=sum/(n-1)
+	sum=math.sqrt(sum)
+	return sum
+end
+
+function table.next(t,v,nocycle) --nocycle argument will not wrap tables
+	local out
+	local fallback
+	local f
+	local outind
+	local outindfallback
+	for i,nv in pairs(t) do
+		if not fallback and not nocycle then fallback=nv outindfallback=i end --if all else, set to first
+		if nocycle then fallback=nv outindfallback=i end
+		if f then out=nv outind=i break end
+		f=nv==v
+	end
+	return out or fallback , outind or outindfallback
+end
+function table.prev(t,v,nocycle)
+	local out
+	local fallback
+	local outind
+	local outindfallback
+	for i,nv in pairs(t) do
+		if not fallback and nocycle then fallback=nv  outindfallback=i end
+		if v==nv and out then fallback=nil outindfallback=nil break end --all else, output last
+		out=nv
+		outind=i
+	end
+	return fallback or out , outind or outindfallback
 end
 

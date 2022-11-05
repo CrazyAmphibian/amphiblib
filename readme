@@ -161,3 +161,76 @@ functions included;
 		example:
 			files = getfiles("Desktop/sample")
 			files={"foo.txt","bar.png",.....}
+
+	table.copy:
+		returns a copy of the inputed table using the pairs() function. returned table does not share the same memory space as input, meaning they will not affect eachother
+		
+		example:
+			t={1,2,3}
+			t2=table.copy(t)
+			t==t2
+			>false
+			print(table.concat(t,",") , table.concat(t2,","))
+			>1,2,3	1,2,3
+			t2[4]=4
+			print(table.concat(t,",") , table.concat(t2,","))
+			>1,2,3	1,2,3,4
+			
+	math.normalrandom:
+		returns a random float. float values will tend to be in a normal distribution with a selectable mean and standard deviation
+		
+		example:
+			print(math.normalrandom()) --mean default is 0, stdev is 1
+			>-0.03
+			print(math.normalrandom(100,15))
+			>75.035
+			print(math.normalrandom(0,1,300)) --third argument "samples" determines accuracy of distribution at the cost of speed
+			>40.124329
+			
+	math.sum:
+		returns the sum of a table
+		
+		example:
+			t={1,2,3,4,5}
+			print(math.sum(t))
+			>15
+
+	math.mean:
+		returns the mean (average) of a table
+		
+		example:
+			t={1,2,3,4,5}
+			print(math.mean(t))
+			>3
+			
+	math.stdev:
+		returns the standard deviation of a table
+		
+		example:
+			t={1,2,3,4,5}
+			print(math.stdev(t))
+			>1.581...
+			
+	table.next
+		returns the next value in a table after a supplied value. will not work properly in table with more than 1 of the same value
+		
+		example:
+			t={"foo","bar","hello","world"}
+			print(table.next(t,"foo"))
+			>bar
+			print(table.next(t,"world"))
+			>foo
+			print(table.next(t,"world",true)) --third argument "nocycle" makes function stop at the end instead of wrapping
+			>world
+			
+	table.prev
+		returns the previous value in a table after a supplied value. will not work properly in table with more than 1 of the same value
+		
+		example:
+			t={"foo","bar","hello","world"}
+			print(table.next(t,"bar"))
+			>foo
+			print(table.next(t,"foo"))
+			>world
+			print(table.next(t,"foo",true)) --third argument "nocycle" makes function stop at the begining instead of wrapping
+			>foo
