@@ -319,3 +319,23 @@ function table.prev(t,v,nocycle)
 	return fallback or out , outind or outindfallback
 end
 
+function table.convolve(t1,t2) --no safeguards for non-number values. oh well. that would slow it down a lot.
+	if type(t1)~="table" or type(t2)~="table" then return {} end 
+	local t={}
+	local out={}
+	local x,y=1,1 --because lua tables can have any value for a key
+	for _,v1 in pairs(t1) do
+		for _,v2 in pairs(t2) do
+			t[x+y]=(t[x+y] or 0) + v1*v2 --add diagonals
+			x=x+1
+		end
+		x=1
+		y=y+1
+	end
+	
+	for _,v in pairs(t) do
+		table.insert(out,v)
+	end
+	
+	return out
+end

@@ -234,3 +234,16 @@ functions included;
 			>world
 			print(table.next(t,"foo",true)) --third argument "nocycle" makes function stop at the begining instead of wrapping
 			>foo
+			
+	table.convolve
+		reuturns the result of convoluting 2 tables. uses the slower method. keys do not need to be numerical, however values do.
+		
+		example:
+			a={1,2,3}
+			b={1,2,3}
+			print(table.convolve(a,b))
+			>{1,4,10,12,9}
+			b={4,5,6}
+			print(table.convolve(a,b))
+			>{4,13,28,27,18}
+	
