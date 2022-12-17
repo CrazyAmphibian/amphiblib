@@ -24,56 +24,68 @@ table.next | returns the next item in a tabe. duplicate entries will mess it up.
 table.prev | reterns the previous item in a table. duplicate entries will mess it up.
 ]]
 
-table.tostring = function(tab,keepkeys, humanreadable , rlevel) --converts a table to a string. keepkeys will keep numeric type keys. it will always keep string keys
-	if type(tab)~="table" then return tab end --only execute if its a table
-	local textout=""
-	local n=0
-	rlevel=rlevel or 0 --recursion level.
+function table.tostring(t,showallkeys,humanmode,rlevel,exclude)
+	rlevel=rlevel or 1
+	if not humanmode then rlevel=0 end
+	exclude=exclude or {t} --internal use. prevent tables with themselves causing a stack overflow
+	local formatnontab=function(val)
+		if type(val)=="string" then
+			local out="\""
+			for i=1,#val do
+				local n=val:sub(i,i):byte()
+				if n>=0x20 and n<=0x7e and n~=0x5c and n~=0x22 then --standard letters that do not break
+					out=out..val:sub(i,i)
+				else
+					nc="00"..n
+					nc=nc:sub(#nc-2)
+					out=out.."\\"..nc --for special characters, use decimal representation
+				end
 
-	if humanreadable then
-	for t=1,rlevel do textout=textout.."\t" end --tab for each level in.
-	end
-
-	--textout="{"..textout
-	textout=textout.."{"
-		
-	for i,v in pairs(tab) do
-		n=n+1
-
-		if humanreadable and n~=1  then
-			for t=1,rlevel do textout=textout.."\t" end --tab for each level in.
-		end
-		
-		--first, key writting
-		if type(i)=="number" and keepkeys then
-			textout=textout.."["..i.."]="
-		elseif type(i)=="number" then		
-		elseif type(i)=="string" then
-			textout=textout.."[\"".. i :gsub("\\","\\\\"):gsub("\"","\\\""):gsub("\n","\\n"):gsub("\r","\\r") .."\"]="
-		else
-			textout=textout.."["..tostring(i).."]"
+			end
+			return out.."\""
+		elseif type(val)=="number" then
+			return val
 		end
 
-		--now the values
-		if type(v)=="table" then
-			textout=textout..table.tostring(v,keepkeys,humanreadable,rlevel+1)
-			if humanreadable then textout=textout.."\n" end
-		elseif type(v)=="number" then
-			textout=textout..v
-		elseif type(v)=="string" then
-			textout=textout.."\"".. v :gsub("\\","\\\\"):gsub("\"","\\\""):gsub("\n","\\n"):gsub("\r","\\r") .."\""
-			if textout:find("\v") then print(v) end
-		else
-			textout=textout.."\""..tostring(v).."\""
-			print("aa")
-		end	
-
-		if n~=#tab then textout=textout.."," end
-		if humanreadable and n<#tab then textout=textout.."\n" end
 	end
-	textout=textout.."}"
 
-	return textout
+	local function isexcluded(val)
+		for _,v in pairs(exclude) do
+			if v==val then return true end
+		end
+	end
+
+	if type(t)~="table" then return	formatnontab(t) end
+	local out="{"
+	if humanmode then out=out.."\n" end
+	for i,v in pairs(t) do
+		local ti,tv=type(i),type(v)
+		if (ti=="number" or ti=="string") and (tv=="number" or tv=="string" or tv=="table") and not isexcluded(v) then --only results we can actually record
+
+			for i=1,rlevel do
+				out=out.."\t"	
+			end
+
+			if ti~="number" or showallkeys then
+				out=out.."["..formatnontab(i).."]="	
+			end
+
+			if tv~="table" then
+				out=out..formatnontab(v)
+			else
+				table.insert(exclude,v)
+				out=out..table.tostring(v,showallkeys,humanmode,rlevel+1,exclude)
+			end
+
+
+			out=out..","
+			if humanmode then out=out.."\n" end
+		end
+	end
+	for i=1,rlevel-1 do out=out.."\t" end
+	out=out.."}"
+	return out
+
 end
 
 
