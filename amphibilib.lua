@@ -45,6 +45,8 @@ function table.tostring(t,showallkeys,humanmode,rlevel,exclude)
 			return out.."\""
 		elseif type(val)=="number" then
 			return val
+		elseif type(val)=="boolean" then
+			return tostring(val)
 		end
 
 	end
@@ -60,7 +62,7 @@ function table.tostring(t,showallkeys,humanmode,rlevel,exclude)
 	if humanmode then out=out.."\n" end
 	for i,v in pairs(t) do
 		local ti,tv=type(i),type(v)
-		if (ti=="number" or ti=="string") and (tv=="number" or tv=="string" or tv=="table") and not isexcluded(v) then --only results we can actually record
+		if (ti=="number" or ti=="string" or ti=="boolean") and (tv=="number" or tv=="string" or tv=="table" or tv=="boolean") and not isexcluded(v) then --only results we can actually record
 
 			for i=1,rlevel do
 				out=out.."\t"	
