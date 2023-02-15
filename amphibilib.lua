@@ -204,7 +204,9 @@ end
 
 pickrandom = function(s) --pick a random item in the table
 if type(s) ~= "table" then return s end
-local rng = math.random(1,#s)
+local len=0
+for _ in pairs(s) do len=len+1 end
+local rng = math.random(1,len)
 local n=0
 	for i,v in pairs(s) do
 	n=n+1
