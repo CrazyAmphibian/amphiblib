@@ -357,3 +357,49 @@ function table.convolve(t1,t2) --no safeguards for non-number values. oh well. t
 	
 	return out
 end
+
+
+
+function string.search(target,substring) --less fancy string.find that will always "just work"
+if type(target) ~= "string" then return nil end
+if not substring or type(substring) ~= "string" then return nil end
+for i=1,#target-#substring+1 do
+	if target:sub(i,i+#substring-1)==substring then
+		return i,i+#substring-1
+	end
+end
+end
+
+--print(string.search("hello","o") )
+
+function string.replace(base,pattern,repl) --gsub is kinda annoying to work with with the special formatting. let's fix that.
+local newstr=""
+local n=1
+
+local stringsearch=function(target,substring) --here so you can remove the one above with no issues.
+if type(target) ~= "string" then return nil end
+if not substring or type(substring) ~= "string" then return nil end
+for i=1,#target-#substring+1 do
+	if target:sub(i,i+#substring-1)==substring then
+		return i,i+#substring-1
+	end
+end
+end
+
+	repeat
+		local sr,sr2=stringsearch(base:sub(n),pattern)
+		
+		if sr then
+			newstr=newstr..repl
+			n=n+#pattern
+		end
+		if not sr then
+			newstr=newstr..base:sub(n)
+			n=n+#base:sub(n)
+		end
+	until n>#base
+
+return newstr
+end
+
+
