@@ -390,8 +390,9 @@ end
 		local sr,sr2=stringsearch(base:sub(n),pattern)
 		
 		if sr then
+			newstr=newstr..base:sub(n,sr-1)
 			newstr=newstr..repl
-			n=n+#pattern
+			n=sr2+1
 		end
 		if not sr then
 			newstr=newstr..base:sub(n)
