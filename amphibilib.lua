@@ -401,3 +401,29 @@ return newstr
 end
 
 
+function table.merge(basetable,addtable,protect) --push the contents of addtable into basetable. addtable will overwrite basetable unless protect is true
+	local tabcop=function(tab) --copies a table without setting them equal. ensures ability to modify tables without changing the base.
+		local out={}
+		for i,v in pairs(tab) do
+			if type(v)~="table" then
+				out[i]=v
+			else
+				out[i]=tabcop(v)
+			end
+		end
+		return out
+	end
+
+local out=tabcop(basetable) --first make a deep copy of the base table.
+
+	for i,v in pairs(addtable) do --next let's go through what to add.
+		if type(out[i])=="table" and type(addtable[i])=="table" then --if both tables
+			out[i]=table.merge(out[i],addtable[i],protect)
+			
+		elseif (not out[i]) or (not protect) then --if not found in basetable, or protect.
+			out[i]=v
+		end
+	end
+	
+return out
+end
