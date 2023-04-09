@@ -174,31 +174,28 @@ local out={}
 return out	
 end
 
-string.words = function(s,seperator,keepsep) --extract words into a table. can set a custom separator default " "
-if type(s) ~= "string" then return {} end
-if not seperator then seperator={" "} end
-if type(seperator) ~= "table" then seperator={seperator} end
+string.words = function(s,seperator,keepsep) 
+if type(s)~="string" then return {} end
+if type(seperator)~="table" then seperator={seperator or ""} end
 local out={}
-local buf=""
-	for i=1,#s do
-	local issep	
-		for _,sep in pairs(seperator) do
-			if sep==s:sub(i,i) then issep = true end
-		end
-	
-		if issep then
-		if buf~="" then table.insert(out,buf) end
-			if keepsep then
-			table.insert(out,s:sub(i,i))
-			end	
-		buf=""
-		else
-		buf=buf..s:sub(i,i)
-		end	
-	end
-if buf~="" then table.insert(out,buf) end
+local n=1
+local i=1
 
-return out	
+repeat
+	for _,sp in pairs(seperator) do
+		local cw=s:sub(i,i)
+		if sp==cw or cw=="" then
+			out[#out+1]=s:sub(n,i-1)
+			if keepsep and cw~="" then
+				out[#out+1]=cw
+			end
+			n=i+1
+		end
+	end
+i=i+1
+until n>=#s
+
+return out
 end
 
 
