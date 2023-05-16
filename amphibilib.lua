@@ -226,11 +226,16 @@ io.write(s..sep)
 return io.read()
 end
 
-getfiles=function(dir) --return all files in a directory
+
+getfiles=function(dir,OS) --return just files in a directory, not subdirectories
+	dir=dir or "./"
 	local out={}
-	local a=io.popen("ls \""..dir:gsub("\\","/").."\"" ):read("*all")
-	if a:len()==0 then --if windows
-		a=io.popen("dir \""..dir:gsub("/","\\").."\" /B" ):read("*all")	
+	local a
+	if not OS or OS:lower()~="windows" then
+	a=io.popen("ls \""..dir:gsub("\\","/").."\" -p | grep -v /" ):read("*all")
+	end
+	if (a or ""):len()==0 or (OS or ""):lower()=="windows" then --if windows
+		a=io.popen("dir \""..dir:gsub("/","\\").."\" /b /a-d" ):read("*all")	
 	end
 	
 	local n=1
@@ -244,6 +249,33 @@ getfiles=function(dir) --return all files in a directory
 	end
 	return out
 end
+
+getdirs=function(dir,OS) --return directories in a directory.
+	dir=dir or "./"
+	local out={}
+	local a
+	if not OS or OS:lower()~="windows" then
+	print("ls \""..dir:gsub("\\","/").."\" -F | grep / | cut -f1 -d\"/\"")
+	a=io.popen("ls \""..dir:gsub("\\","/").."\" -F | grep / | cut -f1 -d\"/\"" ):read("*all")
+	end
+	if (a or ""):len()==0 or (OS or ""):lower()=="windows" then --if windows
+		a=io.popen("dir \""..dir:gsub("/","\\").."\" /b /ad" ):read("*all")	
+	end
+	
+	local n=1
+	for i=1,a:len() do
+		if not out[n] then out[n] = "" end
+			if a:sub(i,i) ~="\n" then
+				out[n]=out[n]..a:sub(i,i)
+			else
+				n=n+1
+			end	
+	end
+	return out
+end
+
+
+
 
 
 function table.copy(t) --because lua tables are funny. here's a cheap workaround
