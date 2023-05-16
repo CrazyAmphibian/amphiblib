@@ -427,3 +427,64 @@ local out=tabcop(basetable) --first make a deep copy of the base table.
 	
 return out
 end
+
+function consoleformat(text,style) --uses ANSI escape sequences to make stuff colorful. each call will also reset existing formatting.
+	style=style or {}
+	local newt="\27["
+	local prev=false
+
+	if style.fg then
+		newt=newt.. (prev and ";" or "")
+		newt=newt.."38;5;"..style.fg
+		prev=true
+	end
+
+	if style.bg then
+		newt=newt.. (prev and ";" or "")
+		newt=newt.."48;5;"..style.bg
+		prev=true
+	end
+
+	if style.blink then
+		newt=newt.. (prev and ";" or "")
+		newt=newt.."5"
+		prev=true
+	end
+
+	if style.bold then
+		newt=newt.. (prev and ";" or "")
+		newt=newt.."1"
+		prev=true
+	end
+
+	if style.italic then
+		newt=newt.. (prev and ";" or "")
+		newt=newt.."3"
+		prev=true
+	end
+
+	if style.underline then
+		newt=newt.. (prev and ";" or "")
+		newt=newt.."4"
+		prev=true
+	end
+
+	if style.strike then
+		newt=newt.. (prev and ";" or "")
+	newt=newt.."9"
+		prev=true
+	end
+
+	if style.overline then
+		newt=newt.. (prev and ";" or "")
+		newt=newt.."53"
+		prev=true
+	end
+
+	newt=newt.."m"..text.."\27[0m"
+	return newt
+end
+
+
+
+
