@@ -40,15 +40,20 @@ function table.tostring(t,showallkeys,humanmode,rlevel,exclude)
 					nc=nc:sub(#nc-2)
 					out=out.."\\"..nc --for special characters, use decimal representation
 				end
-
+				
 			end
 			return out.."\""
 		elseif type(val)=="number" then
-			return val
+			if val==1/0 then val="1/0" end  --inf --these are special cases which do not convet with tostring()
+			if val==-1/0 then val="-1/0" end -- -inf
+			if tostring(val)=="nan" then val="0/0" end -- nan. nan is weird, but we include it because the point is to save all the data, not cherry pick it.
+			return tostring(val)
 		elseif type(val)=="boolean" then
 			return tostring(val)
 		elseif val==nil then
 			return "nil"
+		elseif type(val)=="function" then
+			return "load("..table.tostring(string.dump(val))..")"
 		end
 
 	end
@@ -64,7 +69,7 @@ function table.tostring(t,showallkeys,humanmode,rlevel,exclude)
 	if humanmode then out=out.."\n" end
 	for i,v in pairs(t) do
 		local ti,tv=type(i),type(v)
-		if (ti=="number" or ti=="string" or ti=="boolean") and (tv=="number" or tv=="string" or tv=="table" or tv=="boolean" or tv==nil) and not isexcluded(v) then --only results we can actually record
+		if (ti=="number" or ti=="string" or ti=="boolean") and (tv=="number" or tv=="string" or tv=="table" or tv=="boolean" or tv==nil or tv=="function") and not isexcluded(v) then --only results we can actually record
 
 			for i=1,rlevel do
 				out=out.."\t"	
