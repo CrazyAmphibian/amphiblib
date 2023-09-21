@@ -524,4 +524,109 @@ end
 
 
 
+function math.convertbase(number,from,to) --NOTICE:: returns a string, even in base 10 mode!
+	local isneg=number:sub(1,1)=="-"
+	number=(isneg and number:sub(2) or number)
+	to=to or 10
+	if from>36 or from<2 then error("invalid base: "..from) end
+	if to>36 or to<2 then error("invalud base: "..to) end
+	local out=""
+	local c=0
+	local basetable={ --god i fucking love lua tables
+	--dec
+	[0]="0",
+	["0"]=0,
+	[1]="1",
+	["1"]=1,
+	[2]="2",	
+	["2"]=2,
+	[3]="3",
+	["3"]=3,
+	[4]="4",
+	["4"]=4,
+	[5]="5",
+	["5"]=5,
+	[6]="6",
+	["6"]=6,
+	[7]="7",
+	["7"]=7,
+	[8]="8",
+	["8"]=8,
+	[9]="9",
+	["9"]=9,
+	--hex
+	[10]="A",
+	["A"]=10,
+	[11]="B",
+	["B"]=11,
+	[12]="C",
+	["C"]=12,
+	[13]="D",
+	["D"]=13,
+	[14]="E",
+	["E"]=14,
+	[15]="F",
+	["F"]=15,	
+	--base 36
+	[16]="G",
+	["G"]=16,
+	[17]="H",
+	["H"]=17,
+	[18]="I",
+	["I"]=18,
+	[19]="J",
+	["J"]=19,
+	[20]="K",
+	["K"]=20,
+	[21]="L",
+	["L"]=21,
+	[22]="M",
+	["M"]=22,
+	[23]="N",
+	["N"]=23,
+	[24]="O",
+	["O"]=24,
+	[25]="P",
+	["P"]=25,	
+	[26]="Q",
+	["Q"]=26,	
+	[27]="R",
+	["R"]=27,	
+	[28]="S",
+	["S"]=28,	
+	[29]="T",
+	["T"]=29,		
+	[30]="U",
+	["U"]=30,	
+	[31]="V",
+	["V"]=31,	
+	[32]="W",
+	["W"]=32,	
+	[33]="X",
+	["X"]=33,	
+	[34]="Y",
+	["Y"]=34,	
+	[35]="Z",
+	["Z"]=35,	
+	}
+	
+	for i=1,#number do
+	c=c*from
+	c=c+basetable[number:sub(i,i)] or 0
+	end
+
+	for q=math.ceil(math.log(c+1,to) ),1,-1 do --get how many places there will be. TODO: don't use log, use a solution using intiger math only, because it loses accuracy.
+		for i=to-1,0,-1 do --count down digits
+			if c>=i*(to^(q-1)) then
+				out=out..basetable[i] or ""
+				c=c-i*(to^(q-1))
+				break
+			end
+		end
+	end
+	
+	return (isneg and "-" or "") ..out
+end
+
+
 
