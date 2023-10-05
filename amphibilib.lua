@@ -629,4 +629,24 @@ function math.convertbase(number,from,to) --NOTICE:: returns a string, even in b
 end
 
 
+function table.equal(a,b)
+	local ta,tb=type(a),type(b)
+	if ta~="table" and tb~="table" then
+		return a==b
+	elseif (ta=="table" and tb~="table") or (tb=="table" and ta~="table") then
+		return false
+	end
 
+	for i,v in pairs(a) do
+		if not table.equal(a[i],b[i]) then
+			return false
+		end
+	end
+	for i,v in pairs(b) do
+		if not table.equal(a[i],b[i]) then
+			return false
+		end
+	end
+
+	return true
+end
