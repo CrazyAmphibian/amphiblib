@@ -650,3 +650,68 @@ function table.equal(a,b)
 
 	return true
 end
+
+function table.count(t)
+	local n=0
+	if not t or type(t)~="table" then return 0 end
+	for i,v in pairs(t) do n=n+1 end
+	return n
+end
+
+function table.dump(t,exclude)
+	exclude=exclude or {t} --internal use. prevent tables with themselves causing a stack overflow
+	local formatnontab=function(val)
+		if type(val)=="string" then
+			local out="\""
+			for i=1,#val do
+				local n=val:sub(i,i):byte()
+				if n~=92 and n~=34 and n~="10" and n~="13" then --standard letters that do not break
+					out=out..val:sub(i,i)
+				else
+					out=out.."\\"..n --for special characters, use decimal representation
+				end
+
+			end
+			return out.."\""
+		elseif type(val)=="number" then
+			if val==1/0 then return "1/0" end  --inf --these are special cases which do not convert with tostring()
+			if val==-1/0 then return "-1/0" end -- -inf
+			if tostring(val)=="nan" then return "0/0" end -- nan. nan is weird, but we include it because the point is to save all the data, not cherry pick it.
+			return tostring(val)
+		elseif type(val)=="function" then
+			return "load("..table.dump(string.dump(val))..")"
+		else
+			return tostring(val)
+		end
+
+	end
+
+	local function isexcluded(val)
+		for i=1,#exclude do
+			if exclude[i]==val then return true end
+		end
+	end
+
+	if type(t)~="table" then return	formatnontab(t) end
+	local out="{"
+	if humanmode then out=out.."\n" end
+	for i,v in pairs(t) do
+		local ti,tv=type(i),type(v)
+		if (ti=="number" or ti=="string" or ti=="boolean") and (tv=="number" or tv=="string" or tv=="table" or tv=="boolean" or tv==nil or tv=="function") and not isexcluded(v) then --only results we can actually record
+
+			out=out.."["..formatnontab(i).."]="	
+
+			if tv~="table" then
+				out=out..formatnontab(v)
+			else
+				exclude[#exclude+1]=v
+				out=out..table.dump(v,exclude)
+			end
+
+			out=out..","
+		end
+	end
+
+	out=out.."}"
+	return out
+end
