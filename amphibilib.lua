@@ -705,3 +705,62 @@ function table.dump(t,exclude)
 	out=out.."}"
 	return out
 end
+
+function table.diff(basetable,newtable,activeindex) --returns a string which, when executed as code, will make it so that basetable will become newtable
+		local formatnontab=function(val)
+		if type(val)=="string" then
+			return "\""..val:gsub("\\","\\\\"):gsub("\"","\\\""):gsub("\n","\\n"):gsub("\r","\\r").."\""
+		elseif type(val)=="number" then
+			if val==1/0 then val="1/0" end  --inf --these are special cases which do not convet with tostring()
+			if val==-1/0 then val="-1/0" end -- -inf
+			if tostring(val)=="nan" then val="0/0" end -- nan. nan is weird, but we include it because the point is to save all the data, not cherry pick it.
+			return tostring(val)
+		elseif type(val)=="boolean" then
+			return tostring(val)
+		elseif val==nil then
+			return "nil"
+		elseif type(val)=="function" then
+			return "load("..table.tostring(string.dump(val))..")"
+		else
+			error("non-transferable type "..type(val))
+		end
+
+	end
+	
+	
+	local output=""
+	--an issue i realized is how the fuck we will add indices to a table whose varible name we don't know...
+	--due to load()() executing with an _ENV of _G (unless you use fancy functions), the safest bet will be using the go-to fallback varible of _.
+	--so i guess if you're doing stuff like setfenv(), you'll have to be mindful and pass your table in as _.
+	
+	if type(newtable)=="table" then
+		if type(basetable)~="table" then
+			output=output..(activeindex and string.format("_%s=%s;",activeindex,table.tostring(newtable)) or string.format("_=%s;",table.tostring(newtable) ))
+			basetable={}
+			return output
+		end
+		
+	for i,v in pairs(newtable) do
+		local activeindex=(activeindex or "")..string.format("[%s]",formatnontab(i))
+		local btv=basetable[i]
+		if not table.equal(v,btv) then
+			if type(v)=="table" then
+				output=output..table.diff(btv,v,activeindex)
+			else
+				output=output..string.format("_%s=%s;",activeindex,formatnontab(v))
+			end
+		end
+	end
+	
+	for i,v in pairs(basetable) do
+		local activeindex=(activeindex or "")..string.format("[%s]",formatnontab(i))
+		if not newtable[i] then
+			output=output..string.format("_%s=nil;",activeindex)
+		end
+	end
+	else
+		output=output..(activeindex and string.format("_%s=%s;",activeindex,formatnontab(newtable)) or string.format("_=%s;",formatnontab(newtable)))
+	end
+	
+	return output
+end
