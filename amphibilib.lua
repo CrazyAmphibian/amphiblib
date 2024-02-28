@@ -662,7 +662,7 @@ function table.dump(t,exclude)
 	exclude=exclude or {t} --internal use. prevent tables with themselves causing a stack overflow
 	local formatnontab=function(val)
 		if type(val)=="string" then
-			return val:gsub("\\","\\\\"):gsub("\"","\\\""):gsub("\n","\\n"):gsub("\r","\\r")
+			return "\""..val:gsub("\\","\\\\"):gsub("\"","\\\""):gsub("\n","\\n"):gsub("\r","\\r").."\""
 		elseif type(val)=="number" then
 			if val==1/0 then return "1/0" end  --inf --these are special cases which do not convert with tostring()
 			if val==-1/0 then return "-1/0" end -- -inf
