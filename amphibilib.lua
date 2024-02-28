@@ -735,7 +735,7 @@ function table.diff(basetable,newtable,activeindex) --returns a string which, wh
 	
 	if type(newtable)=="table" then
 		if type(basetable)~="table" then
-			output=output..(activeindex and string.format("_%s=%s;",activeindex,table.tostring(newtable)) or string.format("_=%s;",table.tostring(newtable) ))
+			output=output..(activeindex and string.format("_%s=%s;",activeindex,table.dump(newtable)) or string.format("_=%s;",table.dump(newtable) ))
 			basetable={}
 			return output
 		end
